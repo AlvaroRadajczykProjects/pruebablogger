@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+	
+		<title>3d_obj</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<meta http-equiv="Content-Security-Policy" content="default-src *; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data:">
+		
+		<style>
+			html, body {
+				width: 100%;
+				height: 100%;
+			}
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+				font-family: arial;
+			}
+			#blocker {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0,0,0,0.3);
+				color: #ffffff;
+			}
+
+		</style>
+		
+	</head>
+	
+	
+	
+	<body>
+
+<script src='http://code.jquery.com/jquery-1.8.3.min.js'/>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r71/three.js'/>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r71/three.min.js'/>
+<script src='https://drive.google.com/uc?id=1tPSnH95nGoM6NnKGvPsVgNi7oYjFrfIP'/>
+<script src='https://drive.google.com/uc?id=1GEo7-dI3Hh6UUUZ2jhKbIG88dAn1lDKB'/>
+
+<script src='https://drive.google.com/uc?id=1X97khLjmSvsrF2q0ktlN5c-7zlMyZcMk'/>
+<script src='https://drive.google.com/uc?id=10yr1UfdFlriTpnXaOQIzqBfMdQjtCf5K'/>
+    
+<script src='https://drive.google.com/uc?id=10qiJkfX2dLk_rSqpK1NCnEEhgseK-6cV'/>
+<script src='https://drive.google.com/uc?id=1GakTil7ffMk9Ypexg6zcjfxf95vmlnzY'/>
+<script src='https://drive.google.com/uc?id=1A0vSt9LJRQFjPQU1vkkwqFYXdzJTAwMU'/>
+<script src='https://drive.google.com/uc?id=1zv6LtOZIMlTyF70bR2xCF1YDltOzfPIw'/>
+<script src='https://drive.google.com/uc?id=1YeBO1SwTxXt5sK5KnFeSSvotKJyp84oP'/>
+<script src='https://drive.google.com/uc?id=1GLcVdyR6dRcEDshNcUEtuyoh-o1IHWnX'/>
+    
+<script src='https://drive.google.com/uc?id=1-NueGL7ttFtgsq_UXQC8EvEJ2nwxWVdY'/>
+    
+<script src='https://drive.google.com/uc?id=1DHzlXvoIgJf7RLiX2Flf9_Pr-l4Oae0o'/>
+<script src='https://drive.google.com/uc?id=1TRwC0ESy7lrd1G13SZ1wX7gMlr-zGt9J'/>
+		
+		<div id="blocker"><span style="font-size:40px">click</span></div>
+		
+		
+
+		<script>
+		
+			/* VARIABLES DE OBJETOS HTML */
+			
+			var blocker = document.getElementById( 'blocker' );
+			var extb = document.getElementById( 'extb' );
+			
+			/* ------------------------- */
+			
+			
+			
+			/* VARIABLES DEL MOTOR */
+			
+			var camera, scene, renderer, controls, clock, raycaster, stats, mixer; 
+			var controlsEnabled = false;
+			clock = new THREE.Clock();
+			var objects = [];
+			var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
+			
+			/* ------------------- */
+			
+			
+			
+			/* MOTOR PARA DETECTAR EL PERMISO DEL USO DE PANTALLA */
+			
+			if ( havePointerLock ) {
+				var element = blocker;
+				var pointerlockchange = function ( event ) {
+					if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
+						controlsEnabled = true;
+						controls.enabled = true;
+						blocker.style.display = 'none';
+					} else {
+						controls.enabled = false;
+						blocker.style.display = 'block';
+					}
+				};
+				var pointerlockerror = function ( event ) {
+				};
+
+				document.addEventListener( 'pointerlockchange', pointerlockchange, false ); document.addEventListener( 'mozpointerlockchange', pointerlockchange, false ); document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
+				document.addEventListener( 'pointerlockerror', pointerlockerror, false ); document.addEventListener( 'mozpointerlockerror', pointerlockerror, false ); document.addEventListener( 'webkitpointerlockerror', pointerlockerror, false );
+
+				blocker.addEventListener( 'click', function ( event ) {
+
+						blocker.style.display = 'none';
+
+						element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+						element.requestPointerLock();
+					
+					
+				}, false );
+				
+			}
+			
+			/* -------------------------------------------------- */
+			
+			
+			
+			/* LUCES, CAMARA, ETC */
+			
+			// renderizado
+			renderer = new THREE.WebGLRenderer( { antialias: true } ); // poner antialias a false va mas rapido, pero tiene menor calidad
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+			// camara
+			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+			// escena y color
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0x000000 );	
+
+			// controles
+			controls = new THREE.PointerLockControls( camera );
+
+			// raycaster
+			raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+			
+			// luces
+			var ambientLight = new THREE.AmbientLight( 0xcccccc, 1 );
+			scene.add( ambientLight );
+			
+			stats = new Stats();
+			
+			var directionalLight = new THREE.DirectionalLight( 0xcccccc , 0.03);
+			directionalLight.position.set( 0, 0, 2 );
+			scene.add( directionalLight );
+
+			
+			/* ------------------ */
+			
+			
+			
+			/* VARIABLES DEL JUEGO */
+			
+			// variables normales
+			var radian = 180 / Math.PI;
+			var keyboard = {};
+			
+			// variables complejas
+			var cam = {
+				xpos: 0, ypos: 10, zpos: 0,
+				fspd: 1, lspd: 0.7,
+			}
+			var obj = {
+				path: 'source/models/modelo/', mtlname: 'male02.mtl', objname: 'male02.obj',
+				xpos: 100, ypos: 0, zpos: 0,
+				xrot: 0, yrot: 0, zrot: 0,
+				sx: 0.01, sy: 0.01, sz: 0.01,
+			}
+			var pedo = {
+				path: 'source/models/modelo4/', mtlname: 'ahri.mtl', objname: 'ahri.obj',
+				xpos: 30, ypos: 0, zpos: 0,
+				xrot: 0, yrot: 0, zrot: 0,
+				sx: 0.07, sy: 0.07, sz: 0.07,
+			}
+			var avatar = {
+				daefile: 'source/models/stormtrooper/stormtrooper.dae',
+				xpos: 0, ypos: 0, zpos: 0,
+				xrot: -90, yrot: 0, zrot: 0,
+				sx: 1, sy: 1, sz: 1,
+			}
+			var cubo = {
+				width: 40, height: 20, depth: 20,
+				xpos: -25, ypos: 11, zpos: 25,
+				xrot: 0, yrot: 0, zrot: 0,
+				sx: 1, sy: 1, sz: 1,
+			}
+			var espacio = {
+				width: 1000, height: 1000, depth: 1000,
+				xpos: 0, ypos: 11, zpos: 0,
+				xrot: 0, yrot: 0, zrot: 0,
+				sx: 1, sy: 1, sz: 1,
+			}
+			
+			/* ------------------- */
+				
+				
+				
+			/* FUNCIONES DEL CONTROL DE LA VENTANA, DEL RATON Y DE LAS TECLAS */
+			
+			// ajuste de la pantalla
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}; window.addEventListener( 'resize', onWindowResize, false );
+			
+			// control de teclas
+			function keyDown(event){keyboard[event.keyCode] = true;}; function keyUp(event){keyboard[event.keyCode] = false;}; 
+			window.addEventListener('keydown', keyDown); window.addEventListener('keyup', keyUp);
+			
+			// control de la pantalla por medio del teclado
+			var controlAdd = function() {
+				scene.add( controls.getObject() );
+			}; controlAdd();
+			
+			/* ---------------------------------------------------- */
+			
+			
+			
+			/* FUNCIONES DEL JUEGO */
+			
+			function cubo_texturas() {
+				cubo.numtexturas = ["https://www.tierrapost.net/wp-content/uploads/2017/12/expresiones-para-decir.jpg", "grass.png", "iron.png", "wood.png", "marihuana.png", "bitchassnigga.png"]
+				cubo.texturas = [
+					new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("source/img/cube/" + cubo.numtexturas[0]), side: THREE.DoubleSide}),
+					new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("source/img/cube/" + cubo.numtexturas[0]), side: THREE.DoubleSide}),
+					new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("source/img/cube/" + cubo.numtexturas[0]), side: THREE.DoubleSide}),
+					new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("source/img/cube/" + cubo.numtexturas[0]), side: THREE.DoubleSide}),
+					new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("source/img/cube/" + cubo.numtexturas[0]), side: THREE.DoubleSide}),
+					new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("source/img/cube/" + cubo.numtexturas[0]), side: THREE.DoubleSide}),
+				];
+			}
+			
+			function espacio_texturas() {
+				espacio.numtexturas = ["https://www.tierrapost.net/wp-content/uploads/2017/12/expresiones-para-decir.jpg", "cielo.png", "cielo.png", "grass.png", "cielo.png", "cielo.png"]
+				espacio.texturas = [
+					new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("source/img/cube/" + espacio.numtexturas[0]), side: THREE.DoubleSide}),
+					new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("source/img/cube/" + espacio.numtexturas[0]), side: THREE.DoubleSide}),
+					new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("source/img/cube/" + espacio.numtexturas[0]), side: THREE.DoubleSide}),
+					new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("source/img/cube/" + espacio.numtexturas[0]), side: THREE.DoubleSide}),
+					new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("source/img/cube/" + espacio.numtexturas[0]), side: THREE.DoubleSide}),
+					new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("source/img/cube/" + espacio.numtexturas[0]), side: THREE.DoubleSide}),
+				];
+			}
+			
+			// animacion de colada (bucle)
+			function ani_collada(){
+			
+				var delta = clock.getDelta();
+
+				if ( mixer !== undefined ) {
+
+					mixer.update( delta );
+
+				}
+			}
+
+			function objetos() {
+			
+				/* OBJETOS 	SIMPLES */
+				
+				// cubo
+				cubo.geometry = new THREE.BoxGeometry(cubo.width, cubo.height, cubo.depth);
+				cubo_texturas();
+				cubo.material = new THREE.MeshFaceMaterial(cubo.texturas);
+				cubo.obj = new THREE.Mesh(cubo.geometry, cubo.material);
+				var p_cubo = function() {cubo.obj.position.x = cubo.xpos; cubo.obj.position.y = cubo.ypos; cubo.obj.position.z = cubo.zpos; /**/ cubo.obj.rotation.x = cubo.xrot; cubo.obj.rotation.y = cubo.yrot; cubo.obj.rotation.z = cubo.zrot; /**/ cubo.obj.scale.x = cubo.sx; cubo.obj.scale.y = cubo.sy; cubo.obj.scale.z = cubo.sz;}; p_cubo();
+
+				scene.add( cubo.obj );	
+				
+				// espacio
+				espacio.geometry = new THREE.BoxGeometry(espacio.width, espacio.height, espacio.depth);
+				espacio_texturas();
+				espacio.material = new THREE.MeshFaceMaterial(espacio.texturas);
+				espacio.obj = new THREE.Mesh(espacio.geometry, espacio.material);
+				
+				espacio.obj.position.y = espacio.height/2;
+
+				scene.add( espacio.obj );
+				
+				/* ---------------- */
+
+
+
+				/* OBJETOS .OBJ */
+				
+				// DEJAR ESTO PARA ABRIR .DDS
+				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+					
+				// suelto
+				var manager = new THREE.LoadingManager();
+
+				var textureLoader = new THREE.TextureLoader( manager );
+				var texture = textureLoader.load( "source/models/modelo5/auto.png" );
+  
+  				//FUNCIONAAAAAAAA
+				
+				/* ------------ */
+					
+			} objetos();
+			
+			/* ------------------- */
+			
+			
+			
+			/* ONCE & BUCLE */
+					
+			// once
+			function once(){
+			
+				// lugar inicial de la cámara
+				controls.getObject().position.x = cam.xpos;
+				controls.getObject().position.y = cam.ypos;
+				controls.getObject().position.z = cam.zpos;
+			
+			} once();
+			
+			// bucle
+			function bucle() {
+			
+				// juego de variables de los objetos 3d --------------------
+				
+				obj.yrot += 1;
+				
+				avatar.zrot += 1;
+				
+				// ---------------------------------------------------------
+				
+				// animacion de collada
+				ani_collada();
+				
+				stats.update();
+				
+				// ni idea
+				var intersections = raycaster.intersectObjects( objects );
+				var onObject = intersections.length > 0;
+			
+				if ( controlsEnabled === true ) {
+				
+					raycaster.ray.origin.copy( controls.getObject().position );
+					raycaster.ray.origin.y -= 1;
+					
+					//lectura constante de las teclas
+					if(keyboard[65]){controls.getObject().translateX( -cam.lspd );}
+					if(keyboard[68]){controls.getObject().translateX( cam.lspd );} 
+					if(keyboard[83]){controls.getObject().translateZ( cam.fspd );}
+					if(keyboard[87]){controls.getObject().translateZ( -cam.fspd );}
+					
+					if(keyboard[38]){controls.getObject().translateY( cam.lspd );}
+					if(keyboard[40]){controls.getObject().translateY( -cam.lspd );}
+					
+					// controles de teclas de la cámara
+					
+					cam.xpos = controls.getObject().position.x;
+					cam.ypos = controls.getObject().position.y;
+					cam.zpos = controls.getObject().position.z;
+			
+				} 
+				// hacer escena y cámara
+				renderer.render( scene, camera );
+				
+				requestAnimationFrame( bucle );
+			}; requestAnimationFrame( bucle );
+			
+			/* ------------ */
+
+		</script>
+
+	</body>
+	
+</html>
