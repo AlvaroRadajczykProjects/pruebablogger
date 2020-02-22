@@ -1,0 +1,91 @@
+<html>
+
+	<head>
+	
+		<style>
+		
+			#bloque1_1{
+			
+				width: 20px;
+				height: 20px;
+				position: absolute;
+				top: 20px;
+				left: 20px;
+				background-color: blue;
+			
+			}
+			#bloque1_2{ width: 20px; height: 20px; position: absolute; top: 20px; left: 20px; background-color: blue; }
+			#bloque1_3{ width: 20px; height: 20px; position: absolute; top: 20px; left: 20px; background-color: blue; }
+			#bloque1_4{ width: 20px; height: 20px; position: absolute; top: 20px; left: 20px; background-color: blue; }
+			
+			#bloque2_1{
+			
+				width: 20px;
+				height: 20px;
+				position: absolute;
+				top: 100px;
+				left: 100px;
+				background-color: red;
+			
+			}
+			#bloque2_2{ width: 20px; height: 20px; position: absolute; top: 20px; left: 20px; background-color: red; }
+			#bloque2_3{ width: 20px; height: 20px; position: absolute; top: 20px; left: 20px; background-color: red; }
+			#bloque2_4{ width: 20px; height: 20px; position: absolute; top: 20px; left: 20px; background-color: red; }
+		
+		</style>
+	
+	</head>
+	
+	<div id="bloque1_1"></div> <div id="bloque1_2"></div> <div id="bloque1_3"></div> <div id="bloque1_4"></div>
+	<div id="bloque2_1"></div> <div id="bloque2_2"></div> <div id="bloque2_3"></div> <div id="bloque2_4"></div>
+	
+	<body>
+	
+		<script>
+			
+			var keyboard = {};
+			
+			function keyDown(event){keyboard[event.keyCode] = true;}; function keyUp(event){keyboard[event.keyCode] = false;}; 
+			window.addEventListener('keydown', keyDown); window.addEventListener('keyup', keyUp);
+			
+			var bluno_1 = document.getElementById("bloque1_1");
+			var bluno_2 = document.getElementById("bloque1_2");
+			var bluno_3 = document.getElementById("bloque1_3");
+			var bluno_4 = document.getElementById("bloque1_4");
+			
+			var bldos_1 = document.getElementById("bloque2_1");
+			var bldos_2 = document.getElementById("bloque2_2");
+			var bldos_3 = document.getElementById("bloque2_3");
+			var bldos_4 = document.getElementById("bloque2_4");
+			
+			var bl1x = 60; var bl1y = 60;
+			var bl2x = 200; var bl2y = 200;
+			var blr1, blr2, blr3;
+			
+			blr1 = blr3 = blr2 = 25;
+			
+			bldos_1.style.left = bl2x + 15 + "px"; bldos_1.style.top = bl2y + 15 + "px";
+			bldos_2.style.left = bl2x - 15 + "px"; bldos_2.style.top = bl2y - 15 + "px";
+			bldos_3.style.left = bl2x + 15 + "px"; bldos_3.style.top = bl2y - 15 + "px";
+			bldos_4.style.left = bl2x - 15 + "px"; bldos_4.style.top = bl2y + 15 + "px";
+			
+			window.setInterval(function(){
+				
+				if(keyboard[37]){ if( bl1x > bl2x && (bl1x - blr3) <= (bl2x + blr3) && (bl1y + blr3) >= (bl2y - blr3) && (bl1y - blr3) <= (bl2y + blr3) ){} else { bl1x -= 3; } } //izq
+				if(keyboard[38]){ if( bl1y > bl2y && (bl1y - blr3) <= (bl2y + blr3) && (bl1x + blr3) >= (bl2x - blr3) && (bl1x - blr3) <= (bl2x + blr3) ){} else { bl1y -= 3; } } //arr
+				if(keyboard[39]){ if( bl1x < bl2x && (bl1x + blr3) >= (bl2x - blr3) && (bl1y + blr3) >= (bl2y - blr3) && (bl1y - blr3) <= (bl2y + blr3) ){} else { bl1x += 3; } } //der
+				if(keyboard[40]){ if( bl1y < bl2y && (bl1y + blr3) >= (bl2y - blr3) && (bl1x + blr3) >= (bl2x - blr3) && (bl1x - blr3) <= (bl2x + blr3) ){} else { bl1y += 3; } } //abj
+				
+				bluno_1.style.left = bl1x + 15 + "px"; bluno_1.style.top = bl1y + 15 + "px";
+				bluno_2.style.left = bl1x - 15 + "px"; bluno_2.style.top = bl1y - 15 + "px";
+				bluno_3.style.left = bl1x + 15 + "px"; bluno_3.style.top = bl1y - 15 + "px";
+				bluno_4.style.left = bl1x - 15 + "px"; bluno_4.style.top = bl1y + 15 + "px";
+			
+			}, 1000/60);
+			
+		
+		</script>
+	
+	</body>
+
+</html>
